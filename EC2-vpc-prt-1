@@ -1,0 +1,71 @@
+provider "aws" {
+    region = "us-west-2"
+  
+}
+
+resource "aws_instance" "instance" {
+    ami = var.ami-image
+    instance_type = var.instance-type
+    key_name = var.instance-pemkey 
+
+    tags = {
+    Name = var.instance-name-tag
+  }
+
+}
+
+resource "aws_vpc" "terra-vpc" {
+      cidr_block = "10.1.0.0/16"
+      tags = {
+      Name = "terra-vpc"
+     }
+   }
+
+//Create a Subnet 
+resource "aws_subnet" "terra-public_subent_01" {
+    vpc_id = aws_vpc.terra-vpc.id
+    cidr_block = "10.1.1.0/24"
+    map_public_ip_on_launch = "true"
+    availability_zone = "us-west-2a"
+    tags = {
+      Name = "terra-public_subent_01"
+    }
+}
+
+//Creating an Internet Gateway 
+resource "aws_internet_gateway" "terra-igw" {
+    vpc_id = aws_vpc.terra-vpc.id
+    tags = {
+      Name = "terra-igw"
+    }
+}
+
+// Create a route table 
+resource "aws_route_table" "terra-public-rt" {
+    vpc_id = aws_vpc.terra-vpc.id
+    route {
+        cidr_block = "0.0.0.0/0"
+        gateway_id = aws_internet_gateway.terra-igw.id
+    }
+    tags = {
+      Name = "terra-public-rt"
+    }
+}
+
+
+
+// Associate subnet with route table
+
+resource "aws_route_table_association" "dpw-rta-public-subent-1" {
+    subnet_id = aws_subnet.terra-public_subent_01.id
+    route_table_id = aws_route_table.terra-public-rt.id
+}
+
+resource "aws_s3_bucket" "my-s3" {
+  bucket = "my-tf-test-bucket-from-terraform"
+
+  tags = {
+    Name        = "My bucket"
+    Environment = "Dev"
+  }
+}
