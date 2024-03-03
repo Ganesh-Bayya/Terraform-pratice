@@ -1,1 +1,24 @@
 
+variable "ami-image" {
+    description = "this is about the ami-image variable"
+    default = "ami-08f7912c15ca96832"
+  
+}
+
+variable "instance-type" {
+    description = "this is instance type variable"
+    default = "t2.micro"
+  
+}
+
+variable "instance-pemkey" {
+    description = "this is instance pen key variable"
+    default = "pradeep-oregon"
+  
+}
+
+variable "instance-name-tag" {
+    description = "this is instance tag name variable"
+    default = "my-instance-from-terraform"
+  
+}
